@@ -28,8 +28,14 @@ def download_snaps(group, output_dir = "./Output"):
             #input(snap)
             filedata = requests.get(snap.url).content
             kind = filetype.guess(filedata)
-            extension = kind.extension
-            fpath = os.path.join(output_dir, f"{snap.snapIndex}-{snap.snapID}.{extension}")
+            try:
+                extension = kind.extension
+            except Exception as e:
+                extension = "file"
+            if "_Story/" in output_dir:
+                fpath = os.path.join(output_dir, f"{snap.snapID}.{extension}")
+            else:
+                fpath = os.path.join(output_dir, f"{snap.snapIndex}-{snap.snapID}.{extension}")
             if os.path.isfile(fpath):
                 print(f" - {fpath} already exists.")
                 #input(isoparse(snap.create_time).astimezone())
@@ -177,9 +183,14 @@ args.user = args.user.replace("@","")
 #create snapchat username url
 url = f"https://snapchat.com/add/{args.user}"
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+output_dir = args.user
+try:
+    os.mkdir(output_dir)
+except Exception as e:
+    print(e)
 
 user_data = get_snapchat_user_data(url, driver)
-snapshot = open(f"{args.user}_snapshot_{int(datetime.datetime.now().timestamp())}.html","w+b")
+snapshot = open(f"{output_dir}/snapshot_{int(datetime.datetime.now().timestamp())}.html","w+b")
 snapshot.write(user_data.encode())
 snapshot.close()
 driver.close()
@@ -189,15 +200,16 @@ user_info, spotlight_parsed, story_parsed =  parse_user_data(user_data)
 
 time_dir = datetime.datetime.utcfromtimestamp(int(datetime.datetime.now().timestamp())).strftime('%Y-%m-%d')
 
+
 if args.write_json:
-    user_info_out = open(f"{args.user}_userinfo.json", "w+")
+    user_info_out = open(f"{output_dir}/userinfo.json", "w+")
     user_info_out.write(json.dumps(user_info, cls=userProfileJSONEncoder))
     user_info_out.close()
 
 if args.write_json:
 
-    spotlight_parsed_out = open(f"{args.user}_spotlight_{int(datetime.datetime.now().timestamp())}.json","w+")
-spotlight_dir = f"./{args.user}_Spotlight/"
+    spotlight_parsed_out = open(f"{output_dir}/spotlight_{int(datetime.datetime.now().timestamp())}.json","w+")
+spotlight_dir = f"{output_dir}/Spotlight/"
 try:
     os.mkdir(spotlight_dir)
 except Exception as e:
@@ -220,8 +232,8 @@ if spotlight_parsed != None:
 
 if args.write_json:
 
-    story_parsed_out = open(f"{args.user}_story_{int(datetime.datetime.now().timestamp())}.json","w+")
-story_dir = f"./{args.user}_Story/"
+    story_parsed_out = open(f"{output_dir}/story_{int(datetime.datetime.now().timestamp())}.json","w+")
+story_dir = f"{output_dir}/Story/"
 try:
     os.mkdir(story_dir)
 except Exception as e:
