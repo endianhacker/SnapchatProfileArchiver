@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 
 @dataclass
@@ -39,6 +39,7 @@ class userProfile:
     websiteurl: str=""
     profile_url: str=""
     address: str=""
+    relatedAccountsInfo: list= field(default_factory = list)
 
 class userProfileJSONEncoder(json.JSONEncoder):
     def default(self, o: userProfile):
