@@ -314,6 +314,7 @@ def download_profile(username, arg_output_dir = "./", write_json_flag = 0, relat
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--headless")
+chrome_options.add_argument("--log-level=3")
 total_server_errors = 0
 total_timeouts = 0
 
@@ -411,39 +412,33 @@ if args.related_archive != 0:
         os.mkdir(related_accounts_dir)
     except Exception as e:
         print(e)
-    #input(user_info)
+
     username_list = []
     for entry in user_info.relatedAccountsInfo:
         
         username = entry["publicProfileInfo"].get("username")
         
         
-        #input(username)
 
         temp_out_dir  = os.path.abspath(related_accounts_dir)
 
         if args.deep_archive != 0:
             username_list_temp = download_profile(username, related_accounts_dir, write_json_flag = args.write_json, related_archive_flag = 1, deep_archive_flag = 1, username_list=username_list, recursive_flag = 1)
 
-            #process = subprocess.Popen(f"py ./archiver.py -u {username} --write_json 1 --output_dir {temp_out_dir} --related_archive 1 --deep_archive 1", shell=True)
         else:
 
-            #process = subprocess.Popen(f"py ./archiver.py -u {username} --write_json 1 --output_dir {temp_out_dir}", shell=True)
            username_list_temp = download_profile(username, related_accounts_dir, write_json_flag = args.write_json, related_archive_flag = 0, deep_archive_flag = 0, username_list = username_list)
 
         username_list.append(username)
         if username_list_temp != None:
-           # input(username_list_temp)
+         
             for i  in range(len(username_list_temp)):
-              #  input("hit")
+          
                 username_list.append(username_list_temp[i])
-               # input(username_list)
+            
         username_list = list(set(username_list))        
 
-        #return username_list
-
-    
-        #stdout, stderr = process.communicate()
+       
         
 
     output_accounts_file = open(related_accounts_dir + str(int(datetime.datetime.now().timestamp())) + "_username_list.txt", "w+")
@@ -452,8 +447,3 @@ if args.related_archive != 0:
         output_accounts_file.flush()
     output_accounts_file.close()
 
-#itemList_df = pd.read_json(pd.read_html(user_data, attrs= {"id":"ItemList"})[0])
-#input(itemList_df)
-
-
-#s = Snap(**data_dict) translation
